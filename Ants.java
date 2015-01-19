@@ -15,20 +15,17 @@ package ants;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.ShapeFill;
 import org.newdawn.slick.SlickException;
+import ants.MoveableEntity;
 
 public class Ants extends BasicGame {
-    private final ArrayList<MoveableEntity> entityList;
-    final int START_ANT = 10;
+    private ArrayList<MoveableEntity> entityList;
+    final int START_ANT = 12;
     final int START_FOOD = 30;
     final int ENTITY_X = 8;
     final int ENTITY_Y = 8;
@@ -53,7 +50,7 @@ public class Ants extends BasicGame {
     public void init(GameContainer container) throws SlickException {
         random = new Random();
         for(int i=0;i<START_ANT;i++) {
-            entityList.add (new Ant( random.nextInt(DISPLAY_WIDTH + 1),random.nextInt(DISPLAY_HEIGHT),0.6f,0.2f,ANT_TEX,ANT_SPEED));
+            entityList.add (new Ant( random.nextInt(DISPLAY_WIDTH + 1),random.nextInt(DISPLAY_HEIGHT),0,0,ANT_TEX,ANT_SPEED, null));
         }
         for(int i=0;i<START_FOOD;i++) {
             entityList.add (new Food( random.nextInt(DISPLAY_WIDTH + 1),random.nextInt(DISPLAY_HEIGHT),FOOD_TEX));
@@ -70,26 +67,27 @@ public class Ants extends BasicGame {
     @Override
     public void update(GameContainer gc, int delta) throws SlickException {
         Input input = gc.getInput();
-       
-        ArrayList<MoveableEntity> entitiesToRemove = new ArrayList();
         
-        int j = 0;
+        
+        ArrayList entitiesToDestroy = new ArrayList();
         
         for (MoveableEntity entity : entityList) {
             for (MoveableEntity collidingEntity : entityList) {
                if (entity != collidingEntity && entity.hitbox.intersects(collidingEntity.hitbox)) {
-                   System.out.println(j);
-                   j++;
-                   entitiesToRemove.add(entity);
-                   entitiesToRemove.add(collidingEntity);
+                   entity.collide(collidingEntity);
                 }
             }
             entity.update();
+            if (entity.isToBeDestroyed()) {
+                entitiesToDestroy.add(entity);
+            }
+            
+            //Border Rebound
             if (entity.xPos > DISPLAY_WIDTH) {entity.xPos -= DISPLAY_WIDTH;}
             if (entity.yPos > DISPLAY_HEIGHT) {entity.yPos -= DISPLAY_HEIGHT;}
         }
         
-        for (MoveableEntity entity : entitiesToRemove) {
+        for (Object entity : entitiesToDestroy) {
             entityList.remove(entity);
         }
     }

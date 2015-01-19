@@ -17,9 +17,10 @@ import org.newdawn.slick.geom.Rectangle;
  */
 public class MoveableEntity extends Image {
     float xPos,yPos,xVelocity,yVelocity,speed;
-    boolean randomMovement;
+    boolean randomMovement, toBeDestroyed;
     Random random;
     Rectangle hitbox;
+    private final int nutritionValue = 0;
     
     public MoveableEntity(float xPos, float yPos, float xVelocity, float yVelocity, String ref, float speed) throws SlickException {
         super(ref);
@@ -29,10 +30,10 @@ public class MoveableEntity extends Image {
         this.yVelocity = yVelocity;
         this.speed = speed;
         this.randomMovement = false;
+        this.toBeDestroyed = false; 
         this.random = new Random();
         
         this.hitbox = new Rectangle(xPos,yPos,2,2);
-        
         
     }
 
@@ -69,7 +70,11 @@ public class MoveableEntity extends Image {
     }
 
     public void update() {
-         if (randomMovement) { 
+        applyMovement();
+    }
+    
+    public void applyMovement() {
+        if (randomMovement) { 
             xVelocity = random.nextInt(4)-2;
             yVelocity = random.nextInt(4)-2;
         }  
@@ -86,6 +91,21 @@ public class MoveableEntity extends Image {
     public void setRandomMovement(boolean randomMovement) {
         this.randomMovement = randomMovement;
     }
-   
+
+    public boolean isToBeDestroyed() {
+        return toBeDestroyed;
+    }
+
+    public void setToBeDestroyed(boolean toBeDestroyed) {
+        this.toBeDestroyed = toBeDestroyed;
+    }
+    
+    public void collide(MoveableEntity entity) {
+    }
+    
+    public int getNutritionValue() {
+        return nutritionValue;
+    }
+    
     
 }
