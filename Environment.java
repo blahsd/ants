@@ -4,16 +4,26 @@
  * Ants 2D simulation as a platform for the development and study of genetic 
  * algorithms
  * 
+ *
+ *
+ * 0.0.4 
+ * Finish AI wiring
+ *  
+ * 0.0.3 
+ * Add AI interfaces and wiring
+ * 
+ * 0.0.2
+ * Finish environment
+ * 
  * 0.0.1
- * + Add Collision Detection
- * + Add environment management
- * + Add MoveableEntity as moving entities
+ * Add Collision Detection
+ * Add environment management
+ * Add MoveableEntity as moving entities
  */
 
 package ants;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -21,10 +31,9 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import ants.MoveableEntity;
 
-public class Ants extends BasicGame {
-    private ArrayList<MoveableEntity> entityList;
+public class Environment extends BasicGame {
+    ArrayList<MoveableEntity> entityList;
     final int START_ANT = 12;
     final int START_FOOD = 30;
     final int ENTITY_X = 8;
@@ -34,10 +43,12 @@ public class Ants extends BasicGame {
     final static String FOOD_TEX = "res/red.png";
     final static String ANT_TEX = "res/blue.png";
     final static float ANT_SPEED = 2;
+    final int FOOD_FREQ = 50;
+    int timeFromFood;
     Random random;
     
 
-    public Ants (String title) {
+    public Environment (String title) {
         super(title);
         this.entityList = new ArrayList();
     }
@@ -48,16 +59,26 @@ public class Ants extends BasicGame {
      * in random spots
      */
     public void init(GameContainer container) throws SlickException {
-        random = new Random();
         for(int i=0;i<START_ANT;i++) {
-            entityList.add (new Ant( random.nextInt(DISPLAY_WIDTH + 1),random.nextInt(DISPLAY_HEIGHT),0,0,ANT_TEX,ANT_SPEED, null));
+            spawnAnt();
         }
         for(int i=0;i<START_FOOD;i++) {
-            entityList.add (new Food( random.nextInt(DISPLAY_WIDTH + 1),random.nextInt(DISPLAY_HEIGHT),FOOD_TEX));
+            spawnFood();
         }
         
     }
 
+    public void spawnAnt() throws SlickException {
+        random = new Random();
+        entityList.add (new Ant(this, random.nextInt(DISPLAY_WIDTH),random.nextInt(DISPLAY_HEIGHT),0,0,ANT_TEX,ANT_SPEED, null));
+    }
+    
+    public void spawnFood() throws SlickException {
+        random = new Random();
+        entityList.add (new Food( random.nextInt(DISPLAY_WIDTH),random.nextInt(DISPLAY_HEIGHT),FOOD_TEX));
+        this.timeFromFood = 0;
+    }
+    
     /**
      * Game Logic
      * @param gc        game container
@@ -90,6 +111,12 @@ public class Ants extends BasicGame {
         for (Object entity : entitiesToDestroy) {
             entityList.remove(entity);
         }
+        
+        if (this.timeFromFood == FOOD_FREQ) {
+            spawnFood();
+        } 
+        this.timeFromFood++;
+        
     }
 
     /**
@@ -109,7 +136,7 @@ public class Ants extends BasicGame {
     }
     
     public static void main (String args[]) throws SlickException {
-        AppGameContainer app = new AppGameContainer (new Ants ("Ants"));
+        AppGameContainer app = new AppGameContainer (new Environment ("Ants"));
         app.setDisplayMode(DISPLAY_WIDTH,DISPLAY_HEIGHT, false);
         app.setAlwaysRender(true);
         app.setTargetFrameRate(60);

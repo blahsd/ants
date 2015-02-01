@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package ants;
 
 import java.util.ArrayList;
@@ -15,8 +9,20 @@ import java.util.ArrayList;
 public class AI implements AIInterface {
     
     @Override
-    public int[] getMovementVector (ArrayList targets) {
-        int[] movementVector = {1,1};
+    public double[] getMovementVector (double[] targetDirection) {
+        double[] movementVector = {0,0};
+
+        if (targetDirection[0] > targetDirection[1]) {
+            movementVector[0] = 1;
+            movementVector[1] = targetDirection[1]/targetDirection[0];
+        } else {
+            movementVector[0] = targetDirection[0]/targetDirection[1];
+            movementVector[1] = 1;
+        }
+        
+        //based on the direction, create a movementVector
+        //here be smarts
+        
         return movementVector;
     }
 
@@ -25,4 +31,6 @@ public class AI implements AIInterface {
         return null;
     }
 
+    
+  
 }

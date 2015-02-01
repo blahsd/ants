@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package ants;
 
 import java.util.Random;
@@ -70,16 +64,15 @@ public class MoveableEntity extends Image {
     }
 
     public void update() {
-        applyMovement();
     }
     
-    public void applyMovement() {
+    public void applyMovement(double[] movementVector) {
         if (randomMovement) { 
             xVelocity = random.nextInt(4)-2;
             yVelocity = random.nextInt(4)-2;
         }  
-        this.xPos += xVelocity*speed;
-        this.yPos += yVelocity*speed;
+        this.xPos += movementVector[0]*speed;
+        this.yPos += movementVector[1]*speed;
         
         this.hitbox = new Rectangle(xPos,yPos,getHeight(),getWidth());
     }
