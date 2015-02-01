@@ -23,7 +23,6 @@ public class MoveableEntity extends Image {
         this.xVelocity = xVelocity;
         this.yVelocity = yVelocity;
         this.speed = speed;
-        this.randomMovement = false;
         this.toBeDestroyed = false; 
         this.random = new Random();
         
@@ -67,22 +66,26 @@ public class MoveableEntity extends Image {
     }
     
     public void applyMovement(double[] movementVector) {
-        if (randomMovement) { 
-            xVelocity = random.nextInt(4)-2;
-            yVelocity = random.nextInt(4)-2;
-        }  
-        this.xPos += movementVector[0]*speed;
-        this.yPos += movementVector[1]*speed;
+        //cute formula I pulled out of my ass. check.
+        double x1,y1,x2,y2,m,k;
         
-        this.hitbox = new Rectangle(xPos,yPos,getHeight(),getWidth());
-    }
-
-    public boolean isRandomMovement() {
-        return randomMovement;
-    }
-
-    public void setRandomMovement(boolean randomMovement) {
-        this.randomMovement = randomMovement;
+        x1 = movementVector[0];
+        y1 = movementVector[1];
+        
+        m = speed;
+        k = x1/y1;
+        
+        
+        //This should get the vector down so that the sum of x and y movement
+        // equals speed, but the ratio between the two (thus the direction) is 
+        // preserved.
+        x2 = (m*k)/(k+1);
+        y2 = (m)/(k+1);
+        
+        this.xPos += x2;
+        this.yPos += y2;
+        
+        this.hitbox = new Rectangle(xPos,yPos,this.getHeight(),this.getWidth());
     }
 
     public boolean isToBeDestroyed() {

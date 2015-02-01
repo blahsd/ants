@@ -2,9 +2,11 @@ package ants;
 
 import java.util.ArrayList;
 import org.newdawn.slick.SlickException;
-import java.lang.NullPointerException;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -15,9 +17,11 @@ public class Ant extends MoveableEntity {
     private int hunger, age, timeToSpawn;
     private final int MAX_HUNGER = 5000;
     private final int MAX_AGE = 50000;
-    private final int MAX_TIME_TO_SPAWN = 5000;
+    private final int MAX_TIME_TO_SPAWN = 200;
     private final AI ai;
     private final Environment environment;
+    private final Random random;
+   
 
     public Ant(Environment environment, float xPos, float yPos, float xVelocity, float yVelocity, String ref, float speed, AI ai) throws SlickException {
         super(xPos, yPos, xVelocity, yVelocity, ref, speed);
@@ -25,6 +29,7 @@ public class Ant extends MoveableEntity {
         this.hunger = 0;
         this.age = 0;
         this.timeToSpawn = MAX_TIME_TO_SPAWN;
+        this.random = new Random();
         
         if (ai == null) { this.ai = new AI(); }
         else { this.ai = ai; }
@@ -45,9 +50,14 @@ public class Ant extends MoveableEntity {
         age();
         
         if (getTimeToSpawn() <= 0) {
-            spawn();
-            setTimeToSpawn(MAX_TIME_TO_SPAWN);
+            try {
+                spawn();
+                setTimeToSpawn(MAX_TIME_TO_SPAWN);
+            } catch (SlickException ex) {
+                Logger.getLogger(Ant.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        setTimeToSpawn(getTimeToSpawn() - 1);
         
         
         applyMovement(defineMovement());
@@ -67,8 +77,8 @@ public class Ant extends MoveableEntity {
         return (ai.getMovementVector(getDirection(getTarget(scan()))));
     }
     
-    public void spawn() {
-        ai.getSuccessorAI();
+    public void spawn() throws SlickException {
+        environment.spawnAnt(xPos, yPos, xVelocity, yVelocity, ref, speed, ai);
     }
 
     public int getTimeToSpawn() {
@@ -100,13 +110,13 @@ public class Ant extends MoveableEntity {
     }
     
     public ArrayList<MoveableEntity> scan() { 
-        return environment.entityList;
+        return environment.getEntityList();
     }
     
     public MoveableEntity getTarget(ArrayList<MoveableEntity> closeEntities) {
         
         MoveableEntity closestEntity = null;
-        double shortestDistance = 99999;
+        double shortestDistance = 99999999;
 
         for (MoveableEntity entity : closeEntities) {
             if (entity instanceof Food) { 
@@ -127,7 +137,9 @@ public class Ant extends MoveableEntity {
             direction[0] = (this.getxPos()-target.getxPos());
             direction[1] = (this.getyPos()-target.getyPos());
         } catch (NullPointerException ex) {
-            System.out.println("Out of Food!");
+            System.out.println("No food found");
+            direction[0] = random.nextInt();
+            direction[1] = random.nextInt();
         }
         return direction;
     }
